@@ -1,0 +1,11 @@
+version: 2
+sources:
+  - name: so_raw
+    database: master-shell-471213-v7
+    schema: so_raw
+    tables:
+      - name: v_questions
+      - name: v_answers
+      - name: v_users
+      - name: v_tags
+      - name: v_question_tag
