@@ -1,0 +1,8 @@
+name: 'StackProject'   # use the exact project name shown at top of dbt_project.yml
+version: '1.0'
+config-version: 2
+
+models:
+  StackProject:
+    +schema: so_analytics      # <-- forces BigQuery dataset for all models
+    +materialized: view
