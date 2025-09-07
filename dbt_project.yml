@@ -4,5 +4,11 @@ config-version: 2
 
 models:
   StackProject:
-    +schema: so_analytics      # <-- forces BigQuery dataset for all models
+    +schema: So_silver_layer      # <-- forces BigQuery dataset for all models
     +materialized: view
+    Gold_Layer:
+      +schema: So_Gold_layer      # <-- forces BigQuery dataset for all models
+      +materialized: view
+
+
+
