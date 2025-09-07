@@ -9,6 +9,10 @@ models:
     Gold_Layer:
       +schema: So_Gold_layer      # <-- forces BigQuery dataset for all models
       +materialized: view
+    Mart_Layer:
+      +schema: So_Marts
+      +materialized: view
 
+  
 
 
