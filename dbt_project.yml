@@ -4,14 +4,26 @@ config-version: 2
 
 models:
   StackProject:
-    +schema: So_silver_layer      # <-- forces BigQuery dataset for all models
-    +materialized: view
+    Silver_Layer:
+      +schema: So_silver_layer
+      +materialized: view
     Gold_Layer:
-      +schema: So_Gold_layer      # <-- forces BigQuery dataset for all models
+      +schema: So_Gold_layer
+      +materialized: table
+    Mart_Layer:   
+      +schema: So_Marts 
       +materialized: view
-    Mart_Layer:
-      +schema: So_Marts
-      +materialized: view
+    Semantic_Layer:   
+      +schema: So_Semantic_Layer 
+      +materialized: view  
+
+    
+
+  
+
+
+     
+ 
 
   
 

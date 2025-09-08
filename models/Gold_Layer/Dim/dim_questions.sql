@@ -1,13 +1,10 @@
 {{ config(materialized='table') }}
 
 SELECT
-  q.question_id,            -- PK
-  q.title,
-  q.question_url,
-
-  -- Body-derived attributes (require Silver patch; remove if body not available)
-  q.body_text,
-  q.body_char_len,
-  q.code_block_count,
-  q.link_count
-FROM {{ ref('stg_so_questions') }} q
+  CAST(q.question_id AS INT64)                                AS question_id,   -- PK
+  NULLIF(TRIM(q.title), '')                                   AS title,
+  COALESCE(q.question_url,
+           CONCAT('https://stackoverflow.com/questions/', CAST(q.question_id AS STRING)))
+                                                              AS question_url
+FROM {{ source('so_raw','v_questions') }} q
+WHERE q.question_id IS NOT NULL
