@@ -1,4 +1,5 @@
-{{ config(materialized='table', cluster_by=['tag_id']) }}
+-- models/Gold_Layer/Facts/bridge_questions_tag_vw.sql
+{{ config(materialized='view') }}
 
 WITH pairs AS (
   SELECT
