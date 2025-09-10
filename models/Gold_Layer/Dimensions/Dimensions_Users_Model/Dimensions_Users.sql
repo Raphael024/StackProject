@@ -8,7 +8,7 @@ WITH base AS (
              CONCAT('https://stackoverflow.com/questions/', CAST(q.question_id AS STRING))) AS question_url,
     q.creation_ts,
     q.last_activity_ts
-  FROM {{ ref('stg_so_questions') }} q
+  FROM {{ ref('Silver_Layer_Questions') }} q
   WHERE q.question_id IS NOT NULL
 ),
 ranked AS (

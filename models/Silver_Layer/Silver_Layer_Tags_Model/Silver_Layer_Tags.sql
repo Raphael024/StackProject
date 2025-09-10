@@ -6,10 +6,10 @@ WITH t AS (
   WHERE tag IS NOT NULL
 )
 SELECT
-  -- raw payload
+
   (SELECT AS STRUCT t.*) AS raw_record,
 
-  -- attributes
+  
   LOWER(TRIM(t.tag))          AS tag,
   SAFE_CAST(t.tag_count       AS INT64) AS tag_count_raw,
   SAFE_CAST(t.excerpt_post_id AS INT64) AS excerpt_post_id,

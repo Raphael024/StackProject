@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: Silver_Layer_Tags
+    description: "{{ doc('Silver_Layer_Tags') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: silver
+      maturity: medium
+
+    columns:
+      - name: raw_record
+        description: "Entire raw tag payload preserved as a STRUCT for debugging/lineage."
+
+      - name: tag
+        description: "Normalized tag key: LOWER(TRIM(raw tag))."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: source('so_raw', 'v_tags')
+              field: tag
+
+      - name: tag_count_raw
+        description: "Raw community-reported usage count (SAFE_CAST to INT64)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "tag_count_raw >= 0"
+
+      - name: excerpt_post_id
+        description: "Post ID for the tag's short excerpt (nullable)."
+
+      - name: wiki_post_id
+        description: "Post ID for the tag's wiki page (nullable)."

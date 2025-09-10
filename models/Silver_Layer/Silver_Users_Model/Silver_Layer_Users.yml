@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: Silver_Layer_User
+    description: "{{ doc('Silver_Layer_User') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: silver
+      maturity: medium
+
+    columns:
+      - name: raw_record
+        description: "Full raw user payload preserved as a STRUCT for lineage/debugging."
+
+      - name: user_id
+        description: "Primary key for users (cast from raw)."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: source('so_raw', 'v_users')
+              field: user_id
+
+      - name: display_name
+        description: "User's display name, trimmed; NULL when blank."
+
+      - name: reputation
+        description: "User reputation score (SAFE_CAST to INT64)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "reputation >= 0"
+
+      - name: location
+        description: "Full location string from raw data, trimmed of blanks."
+
+      - name: country_guess
+        description: "Derived country guess using the last element of the comma-split location string (nullable)."
+
+      - name: join_ts
+        description: "TIMESTAMP of when the user joined."
+      - name: join_dt
+        description: "DATE of when the user joined."
+        tests:
+          - not_null
+
+      - name: last_access_ts
+        description: "TIMESTAMP of the user's last access."
+      - name: last_access_dt
+        description: "DATE of the user's last access."

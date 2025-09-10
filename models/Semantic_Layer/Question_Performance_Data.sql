@@ -1,7 +1,6 @@
--- models/Semantic_Layer/Major_Report.sql
 {{ config(materialized='view', alias='major_report') }}
 
--- 1) Base question facts (question grain)
+
 WITH q AS (
   SELECT
     question_id,
@@ -15,29 +14,28 @@ WITH q AS (
     favorite_count,
     has_answers,
     has_accepted_answer
-  FROM {{ ref('facts_questions_vw') }}
+  FROM {{ ref('Facts_Questions') }}
 ),
 
--- 2) Question attributes (title, URL)
+
 dq AS (
   SELECT
     question_id,
     title,
     question_url
-  FROM {{ ref('dim_questions') }}
+  FROM {{ ref('Dimensions_Questions') }}
 ),
 
--- 3) Asker attributes (1:1)
+
 asker AS (
   SELECT
     user_id        AS asker_user_id,
     display_name   AS asker_name,
     reputation     AS asker_reputation,
     country_guess  AS asker_country
-  FROM {{ ref('dim_users') }}
+  FROM {{ ref('Dimensions_Users') }}
 ),
 
--- 4) Accepted answer (max 1 row per question). Don't rely on creation_dt here.
 accepted_ans AS (
   SELECT
     question_id,
@@ -50,7 +48,7 @@ accepted_ans AS (
         PARTITION BY question_id
         ORDER BY answer_id   -- deterministic; avoids referencing date columns
       ) AS rn
-    FROM {{ ref('facts_answers_vw') }} a
+    FROM {{ ref('Answers') }} a
     WHERE a.is_accepted
   )
   WHERE rn = 1
@@ -61,10 +59,10 @@ accepted_user AS (
     user_id       AS accepted_user_id,
     display_name  AS accepted_user_name,
     reputation    AS accepted_user_reputation
-  FROM {{ ref('dim_users') }}
+  FROM {{ ref('Dimensions_users') }}
 ),
 
--- 5) Tags aggregated to question grain (no fan-out)
+
 tags AS (
   SELECT
     b.question_id,
@@ -72,12 +70,12 @@ tags AS (
     ARRAY_AGG(DISTINCT t.tag    ORDER BY t.tag)    AS tags_array,
     STRING_AGG(DISTINCT t.tag, '|' ORDER BY t.tag) AS tags_csv,
     COUNT(DISTINCT t.tag_id)                       AS tag_count
-  FROM {{ ref('bridge_questions_tag_vw') }} b
-  JOIN {{ ref('dim_tags') }} t USING (tag_id)
+  FROM {{ ref('Bridge_Questions_Tag') }} b
+  JOIN {{ ref('Dimensions_Tags') }} t USING (tag_id)
   GROUP BY b.question_id
 ),
 
--- 6) Date lookups: derive actual DATEs from the keys
+
 cd AS (
   SELECT
     date_key,
@@ -85,30 +83,30 @@ cd AS (
     EXTRACT(YEAR    FROM date) AS creation_year,
     EXTRACT(MONTH   FROM date) AS creation_month_num,
     EXTRACT(QUARTER FROM date) AS creation_quarter
-  FROM {{ ref('dim_date') }}
+  FROM {{ ref('Dimensions_Date') }}
 ),
 lad AS (
   SELECT
     date_key,
     date AS last_activity_dt
-  FROM {{ ref('dim_date') }}
+  FROM {{ ref('Dimensions_Date') }}
 )
 
--- 7) Final question-grain wide view (use cd/lad dates; never q.creation_dt)
+
 SELECT
   q.question_id,
 
-  -- Question attributes
+
   dq.title,
   dq.question_url,
 
-  -- Asker
+
   q.asker_user_id,
   ak.asker_name,
   ak.asker_reputation,
   ak.asker_country,
 
-  -- Dates (from dim_date lookups)
+ 
   cd.creation_dt,
   lad.last_activity_dt,
   DATE_TRUNC(cd.creation_dt, MONTH) AS creation_month,
@@ -118,22 +116,22 @@ SELECT
   cd.creation_month_num,
   cd.creation_quarter,
 
-  -- Measures & flags
-  q.answer_count,   -- from COUNT DISTINCT in facts_questions_vw
+  
+  q.answer_count,   
   q.view_count,
   q.score,
   q.favorite_count,
   q.has_answers,
   q.has_accepted_answer,
 
-  -- Accepted answer details (no fan-out)
+  
   q.accepted_answer_id                             AS accepted_answer_id_from_q,
   aa.answer_id                                     AS accepted_answer_id_resolved,
   aa.answerer_user_id                              AS accepted_answerer_user_id,
   au.accepted_user_name,
   au.accepted_user_reputation,
 
-  -- Tags
+  
   t.tag_count,
   t.tags_array,
   t.tags_csv,

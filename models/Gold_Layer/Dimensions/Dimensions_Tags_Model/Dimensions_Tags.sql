@@ -1,10 +1,10 @@
--- models/Gold_Layer/Dim/dim_tags.sql
+
 {{ config(materialized='table', cluster_by=['tag_id']) }}
 
 WITH tags_from_questions AS (
   SELECT DISTINCT
     LOWER(TRIM(tag)) AS tag
-  FROM {{ ref('stg_so_questions') }} q
+  FROM {{ ref('Silver_Layer_Questions') }} q
   CROSS JOIN UNNEST(COALESCE(q.tags_array, ARRAY<STRING>[])) AS tag
   WHERE tag IS NOT NULL AND TRIM(tag) <> ''
 ),
@@ -14,11 +14,11 @@ tags_attrs AS (
     SAFE_CAST(t.tag_count_raw AS INT64) AS tag_count_raw,
     t.excerpt_post_id,
     t.wiki_post_id
-  FROM {{ ref('stg_so_tags') }} t
+  FROM {{ ref('Silver_Layer_Tags') }} t
 )
 
 SELECT
-  -- 👇 Explicit INT64 so it can never exceed 19 digits
+  
   CAST(ABS(FARM_FINGERPRINT(tq.tag)) AS INT64) AS tag_id,
   tq.tag,
   ta.tag_count_raw,

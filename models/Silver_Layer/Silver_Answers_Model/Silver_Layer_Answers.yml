@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: Silver_Layer_Answer
+    description: "{{ doc('Silver_Layer_Answer') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: silver
+      maturity: medium
+
+    columns:
+      - name: raw_record
+        description: "Entire raw answer payload preserved as a STRUCT for debugging/lineage."
+
+      - name: answer_id
+        description: "Primary key for answers (from raw `answer_id`)."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: source('so_raw', 'v_answers')
+              field: answer_id
+
+      - name: question_id
+        description: "Foreign key to the parent question."
+        tests:
+          - not_null
+
+      - name: creation_ts
+        description: "TIMESTAMP of answer creation (SAFE_CAST from raw)."
+
+      - name: creation_dt
+        description: "DATE of answer creation (derived from raw creation_date)."
+        tests:
+          - not_null
+
+      - name: last_activity_ts
+        description: "TIMESTAMP of last activity on the answer (SAFE_CAST)."
+
+      - name: last_activity_dt
+        description: "DATE of last activity on the answer."
+
+      - name: last_edit_ts
+        description: "TIMESTAMP of last edit to the answer (SAFE_CAST)."
+
+      - name: last_edit_dt
+        description: "DATE of last edit to the answer."
+
+      - name: score
+        description: "Net score (upvotes – downvotes). Can be negative."
+
+      - name: comment_count
+        description: "Number of comments on the answer."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "comment_count >= 0"
+
+      - name: answerer_user_id
+        description: "User ID of the answer author."
+
+      - name: answerer_display_name
+        description: "Display name of the answer author (trimmed; NULL when blank)."
+
+      - name: answer_url
+        description: "Canonical URL to the answer; falls back to https://stackoverflow.com/a/<answer_id> when missing upstream."
+        tests:
+          - not_null
+
+      - name: is_accepted
+        description: "TRUE if this answer is the accepted answer for its question (from raw)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]

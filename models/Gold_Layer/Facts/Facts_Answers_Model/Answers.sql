@@ -11,18 +11,18 @@ WITH a AS (
     a.last_activity_date AS last_activity_dt,   -- DATE
     a.score,
     a.comment_count
-  FROM {{ ref('stg_so_answers') }} a
+  FROM {{ ref('Silver_Layer_Answers') }} a
   WHERE a.answer_id IS NOT NULL
 ),
 q AS (
   SELECT
     question_id,
     accepted_answer_id
-  FROM {{ ref('stg_so_questions') }}
+  FROM {{ ref('Silver_Layer_Questions') }}
 ),
 d AS (
   SELECT date_key, date
-  FROM {{ ref('dim_date') }}
+  FROM {{ ref('Dimensions_Date') }}
 )
 
 SELECT

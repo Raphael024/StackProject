@@ -1,0 +1,99 @@
+version: 2
+
+models:
+  - name: Facts_Questions
+    description: "{{ doc('Facts_Questions') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: gold
+      maturity: medium
+
+    columns:
+      - name: question_id
+        description: "Primary key for questions."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_so_questions')
+              field: question_id
+
+      - name: asker_user_id
+        description: "User ID of the person who asked the question."
+
+      - name: accepted_answer_id
+        description: "Answer ID of the accepted answer (nullable)."
+
+      - name: creation_dt
+        description: "DATE the question was created."
+        tests:
+          - not_null
+
+      - name: last_activity_dt
+        description: "DATE of last activity on the question (edit/comment/etc)."
+
+      - name: creation_month
+        description: "First day of the month bucket for `creation_dt`."
+        tests:
+          - not_null
+
+      - name: creation_date_key
+        description: "Surrogate key (YYYYMMDD) from dim_date for `creation_dt`."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: last_activity_date_key
+        description: "Surrogate key (YYYYMMDD) from dim_date for `last_activity_dt`."
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: answer_count
+        description: "Pre-aggregated count of distinct answers per question."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "answer_count >= 0"
+
+      - name: view_count
+        description: "Total views the question has received."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "view_count >= 0"
+
+      - name: score
+        description: "Net score of the question (upvotes - downvotes)."
+        tests:
+          - not_null
+
+      - name: favorite_count
+        description: "Number of times the question was favorited/starred."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "favorite_count >= 0"
+
+      - name: has_answers
+        description: "TRUE when `answer_count` > 0."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: has_accepted_answer
+        description: "TRUE when `accepted_answer_id` is not NULL."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+    tests:
+      # If an accepted answer exists, there must be at least one answer
+      - dbt_utils.expression_is_true:
+          expression: "NOT has_accepted_answer OR answer_count > 0"
