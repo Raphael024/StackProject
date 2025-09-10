@@ -1,0 +1,99 @@
+version: 2
+
+models:
+  - name: Silver_Layer_Questions
+    description: "{{ doc('Silver_Layer_Questions') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: silver
+      maturity: medium
+
+    columns:
+      - name: raw_record
+        description: "Entire raw question payload preserved as a STRUCT for debugging/lineage."
+
+      - name: question_id
+        description: "Primary key for questions."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: source('so_raw', 'v_questions')
+              field: question_id
+
+      - name: title
+        description: "Title of the question, trimmed of blanks."
+
+      - name: tags_raw
+        description: "Raw tags string as delivered from source (pipe-delimited)."
+
+      - name: tags_array
+        description: "Array of canonical, lowercased, trimmed tags parsed from `tags_raw`."
+        tests:
+          - not_null
+
+      - name: question_url
+        description: "Canonical question URL; fallback constructed as https://stackoverflow.com/questions/<id>."
+        tests:
+          - not_null
+
+      - name: creation_ts
+        description: "TIMESTAMP of when the question was created."
+      - name: creation_dt
+        description: "DATE of when the question was created."
+        tests:
+          - not_null
+
+      - name: last_activity_ts
+        description: "TIMESTAMP of last activity on the question."
+      - name: last_activity_dt
+        description: "DATE of last activity on the question."
+
+      - name: last_edit_ts
+        description: "TIMESTAMP of the last edit to the question."
+      - name: last_edit_dt
+        description: "DATE of the last edit to the question."
+
+      - name: accepted_answer_id
+        description: "Answer ID of the accepted answer, if any."
+
+      - name: is_answered
+        description: "TRUE if the question has at least one answer or an accepted answer."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: answer_count
+        description: "Number of answers (SAFE_CAST from raw)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "answer_count >= 0"
+
+      - name: comment_count
+        description: "Number of comments (SAFE_CAST from raw)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "comment_count >= 0"
+
+      - name: favorite_count
+        description: "Number of times the question was favorited."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "favorite_count >= 0"
+
+      - name: score
+        description: "Net score (upvotes – downvotes)."
+
+      - name: view_count
+        description: "Total views the question received."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "view_count >= 0"
+
+      - name: asker_user_id
+        description: "User ID of the person who asked the question."
+
+      - name: asker_display_name
+        description: "Trimmed display name of the asker (nullable when blank)."

@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: Bridge_Questions_Tag
+    description: "{{ doc('Bridge_Questions_Tag') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: gold
+      maturity: medium
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [question_id, tag_id]
+
+    columns:
+      - name: question_id
+        description: "Question identifier from `stg_so_questions`."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_so_questions')
+              field: question_id
+
+      - name: tag_id
+        description: "Deterministic surrogate key for the normalized tag from `dim_tags`."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_tags')
+              field: tag_id

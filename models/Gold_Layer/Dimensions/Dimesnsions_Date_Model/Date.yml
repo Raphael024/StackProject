@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: Dimension_Date
+    description: "{{ doc('Dimension_Date') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: shared_dimensions
+      layer: gold
+      maturity: high
+
+    columns:
+      - name: date_key
+        description: "Surrogate key in YYYYMMDD as INT64 (e.g., 20250131)."
+        tests:
+          - not_null
+          - unique
+
+      - name: date
+        description: "The calendar date (DATE). Grain: **one row per day**."
+        tests:
+          - not_null
+          - unique
+
+      - name: year
+        description: "Calendar year extracted from `date`."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "year >= 2010"
+
+      - name: quarter
+        description: "Calendar quarter number (1–4)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4]
+
+      - name: month
+        description: "Calendar month number (1–12)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1,2,3,4,5,6,7,8,9,10,11,12]
+
+      - name: day
+        description: "Day of month (1–31)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "day between 1 and 31"
+
+      - name: iso_week
+        description: "ISO 8601 week number (1–53)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "iso_week between 1 and 53"
+
+      - name: dow
+        description: "BigQuery day-of-week number where Sunday=1 … Saturday=7."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1,2,3,4,5,6,7]
+
+      - name: is_weekend
+        description: "TRUE if `dow` in (1,7), i.e., Sunday or Saturday."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]

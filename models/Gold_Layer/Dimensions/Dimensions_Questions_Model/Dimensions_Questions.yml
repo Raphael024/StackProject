@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: Dimension_questions
+    description: "{{ doc('Dimension_questions') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: report
+      maturity: low
+    columns:
+      - name: question_id
+        description: "Stack Overflow question identifier. Grain of this model: **1 row per question_id**."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_so_questions')
+              field: question_id
+
+      - name: title
+        description: "Latest known title for the question (based on last_activity_ts, then creation_ts)."
+        tests:
+          - not_null
+
+      - name: question_url
+        description: "Canonical URL for the question. Falls back to https://stackoverflow.com/questions/<question_id> when missing in the source."
+        tests:
+          - not_null

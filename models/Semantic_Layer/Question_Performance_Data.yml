@@ -1,0 +1,127 @@
+version: 2
+
+models:
+  - name: Question_Performance_Data
+    description: "{{ doc('Question_Performance_Data') }}"
+    meta:
+      owner: Christopher Lewis
+      domain: stack_overflow
+      layer: semantic
+      maturity: high
+
+    columns:
+      - name: question_id
+        description: "Primary key for the model. Unique identifier of the question."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('facts_questions_vw')
+              field: question_id
+
+      - name: title
+        description: "Title of the question (from dim_questions)."
+
+      - name: question_url
+        description: "Canonical URL of the question."
+
+      - name: asker_user_id
+        description: "User ID of the asker."
+        tests:
+          - relationships:
+              to: ref('dim_users')
+              field: user_id
+
+      - name: asker_name
+        description: "Display name of the asker."
+
+      - name: asker_reputation
+        description: "Reputation score of the asker at the time of snapshot."
+
+      - name: asker_country
+        description: "Country guess for the asker, if available."
+
+      - name: creation_dt
+        description: "DATE the question was created (from dim_date lookup)."
+
+      - name: last_activity_dt
+        description: "DATE of last activity on the question (from dim_date lookup)."
+
+      - name: creation_month
+        description: "Month bucket of the question’s creation date."
+        tests:
+          - not_null
+
+      - name: creation_date_key
+        description: "Date surrogate key for creation_dt (YYYYMMDD from dim_date)."
+
+      - name: last_activity_date_key
+        description: "Date surrogate key for last_activity_dt (YYYYMMDD from dim_date)."
+
+      - name: creation_year
+        description: "Calendar year of creation_dt."
+
+      - name: creation_month_num
+        description: "Month number of creation_dt (1–12)."
+
+      - name: creation_quarter
+        description: "Calendar quarter of creation_dt (1–4)."
+
+      - name: answer_count
+        description: "Number of distinct answers for the question."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "answer_count >= 0"
+
+      - name: view_count
+        description: "Total views of the question."
+        tests:
+          - not_null
+
+      - name: score
+        description: "Net score (upvotes - downvotes)."
+
+      - name: favorite_count
+        description: "Number of times the question was favorited."
+
+      - name: has_answers
+        description: "TRUE if the question has one or more answers."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: has_accepted_answer
+        description: "TRUE if the question has an accepted answer."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: accepted_answer_id_from_q
+        description: "Accepted answer ID as recorded in facts_questions_vw."
+
+      - name: accepted_answer_id_resolved
+        description: "Resolved accepted answer ID from facts_answers_vw join."
+
+      - name: accepted_answerer_user_id
+        description: "User ID of the accepted answer’s author."
+
+      - name: accepted_user_name
+        description: "Display name of the accepted answer’s author."
+
+      - name: accepted_user_reputation
+        description: "Reputation score of the accepted answer’s author."
+
+      - name: tag_count
+        description: "Number of distinct tags on the question."
+
+      - name: tags_array
+        description: "Array of tags applied to the question."
+
+      - name: tags_csv
+        description: "Pipe-delimited string of tags applied to the question."
+
+      - name: tag_ids
+        description: "Array of surrogate keys for tags applied to the question."

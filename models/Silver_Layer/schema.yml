@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_so_questions
+    description: "Clean 1:1 staging of questions from so_raw"
+    columns:
+      - name: question_id
+        tests: [not_null, unique]
+      - name: tags_array
+        description: "Lowercased array of tags derived from raw tags string"
+
+  - name: stg_so_answers
+    description: "Clean 1:1 staging of answers from so_raw"
+    columns:
+      - name: answer_id
+        tests: [not_null, unique]
+      - name: question_id
+        tests:
+          - not_null
+          # relationship (FK) test once stg_so_questions exists
+          - relationships:
+              to: ref('stg_so_questions')
+              field: question_id
+
+  - name: stg_so_users
+    description: "Clean 1:1 staging of users from so_raw"
+    columns:
+      - name: user_id
+        tests: [not_null, unique]
+
+  - name: stg_so_tags
+    description: "Clean 1:1 staging of tags from so_raw"
+    columns:
+      - name: tag
+        tests: [not_null, unique]

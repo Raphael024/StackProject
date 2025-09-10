@@ -5,16 +5,18 @@ config-version: 2
 models:
   StackProject:
     Silver_Layer:
-      +schema: So_silver_layer
+      +schema: Silver_layer
       +materialized: view
     Gold_Layer:
-      +schema: So_Gold_layer
-      +materialized: table
+      +schema: Gold_layer
+      +materialized: table 
+      Facts:
+        +materialized: View
     Gold_facts:   
-      +schema: So_Gold_Facts 
+      +schema: Gold_Facts 
       +materialized: View
     Semantic_Layer:   
-      +schema: So_Semantic_Layer 
+      +schema: Semantic_Layer 
       +materialized: view  
 
     

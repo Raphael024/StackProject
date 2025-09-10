@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: facts_answers_vw
+    description: "{{ doc('facts_answers_vw') }}"
+    meta:
+      owner: analytics
+      domain: stack_overflow
+      layer: gold
+      maturity: medium
+
+    columns:
+      - name: answer_id
+        description: "Primary key for answers. Unique identifier of the answer."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_so_answers')
+              field: answer_id
+
+      - name: question_id
+        description: "Foreign key to the related question."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_so_questions')
+              field: question_id
+
+      - name: answerer_user_id
+        description: "User ID of the answer author (foreign key to users dimension when available)."
+
+      - name: creation_dt
+        description: "Date the answer was created."
+        tests:
+          - not_null
+
+      - name: last_activity_dt
+        description: "Date of the last activity on the answer (e.g., edit, comment)."
+
+      - name: creation_month
+        description: "Month bucket of the answer creation date (first day of the month)."
+        tests:
+          - not_null
+
+      - name: creation_date_key
+        description: "Surrogate key from dim_date for creation_dt (YYYYMMDD)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: last_activity_date_key
+        description: "Surrogate key from dim_date for last_activity_dt (YYYYMMDD)."
+
+      - name: score
+        description: "Net score of the answer (upvotes – downvotes)."
+        tests:
+          - not_null
+
+      - name: comment_count
+        description: "Number of comments on the answer."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "comment_count >= 0"
+
+      - name: is_accepted
+        description: "Boolean flag indicating if the answer is the accepted answer for its question."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
