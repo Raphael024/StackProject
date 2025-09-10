@@ -9,7 +9,9 @@ models:
       +materialized: view
     Gold_Layer:
       +schema: So_Gold_layer
-      +materialized: table
+      +materialized: table 
+      Facts:
+        +materialized: View
     Gold_facts:   
       +schema: So_Gold_Facts 
       +materialized: View
