@@ -1,22 +1,27 @@
-{{ config(materialized='table') }}
+{{ config(materialized="view") }}
 
-WITH base AS (
-  SELECT
-    q.question_id,
-    q.title,
-    COALESCE(q.question_url,
-             CONCAT('https://stackoverflow.com/questions/', CAST(q.question_id AS STRING))) AS question_url,
-    q.creation_ts,
-    q.last_activity_ts
-  FROM {{ ref('Silver_Layer_Questions') }} q
-  WHERE q.question_id IS NOT NULL
-)
-SELECT
-  question_id,
-  title,
-  question_url
-FROM base
-QUALIFY ROW_NUMBER() OVER (
-  PARTITION BY question_id
-  ORDER BY last_activity_ts DESC NULLS LAST, creation_ts DESC NULLS LAST
-) = 1
+with
+    base as (
+        select
+            q.question_id,
+            q.title,
+            coalesce(
+                q.question_url,
+                concat(
+                    'https://stackoverflow.com/questions/',
+                    cast(q.question_id as string)
+                )
+            ) as question_url,
+            q.creation_ts,
+            q.last_activity_ts
+        from {{ ref("Silver_Layer_Questions") }} q
+        where q.question_id is not null
+    )
+select question_id, title, question_url
+from base
+qualify
+    row_number() over (
+        partition by question_id
+        order by last_activity_ts desc nulls last, creation_ts desc nulls last
+    )
+    = 1

@@ -1,17 +1,12 @@
-{{ config(materialized='view') }}
+{{ config(materialized="view") }}
 
-WITH t AS (
-  SELECT *
-  FROM {{ source('so_raw','v_tags') }}
-  WHERE tag IS NOT NULL
-)
-SELECT
+with t as (select * from {{ source("DBT_RAW", "v_tags") }} where tag is not null)
+select
 
-  (SELECT AS STRUCT t.*) AS raw_record,
+    (select as struct t.*) as raw_record,
 
-  
-  LOWER(TRIM(t.tag))          AS tag,
-  SAFE_CAST(t.tag_count       AS INT64) AS tag_count_raw,
-  SAFE_CAST(t.excerpt_post_id AS INT64) AS excerpt_post_id,
-  SAFE_CAST(t.wiki_post_id    AS INT64) AS wiki_post_id
-FROM t
+    lower(trim(t.tag)) as tag,
+    safe_cast(t.tag_count as int64) as tag_count_raw,
+    safe_cast(t.excerpt_post_id as int64) as excerpt_post_id,
+    safe_cast(t.wiki_post_id as int64) as wiki_post_id
+from t

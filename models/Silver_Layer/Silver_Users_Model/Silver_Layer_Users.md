@@ -9,11 +9,11 @@ It preserves the raw payload for traceability, enforces type safety, normalises 
 
 **Lineage**
 
-- **Source:** `{{ source('so_raw','v_users') }}`
+- **Source:** {% raw %}{{ source('DBT_RAW','v_users') }}{% endraw %}
 
 **Key transformations**
 
-- **Raw retention:** Original row kept in `raw_record` for audit/debug.  
+- **Raw retention:** Entire source row kept as `raw_record` (STRUCT) for audit/debug.  
 - **Type safety:** `user_id`, `reputation` cast to INT64; date fields cast to TIMESTAMP and DATE.  
 - **Text cleanup:** `display_name` and `location` trimmed; empty strings replaced with NULL.  
 - **Country guess:** Splits `location` by comma and takes the last element as a proxy for country.  
@@ -37,21 +37,7 @@ It preserves the raw payload for traceability, enforces type safety, normalises 
 **Notes & caveats**
 
 - `country_guess` is **heuristic only**; relies on comma-delimited formatting and may be inaccurate.  
-- Reputation is assumed non-negative; enforced via tests.  
+- Reputation is assumed non-negative.  
 - Dates are safely cast; malformed raw dates yield NULL without breaking the model.
 
-**Example usage**
-
-```sql
--- Count of active users by country
-SELECT country_guess, COUNT(*) AS users
-FROM {{ ref('Silver_Layer_User') }}
-WHERE last_access_dt >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
-GROUP BY country_guess
-ORDER BY users DESC;
-
--- Identify top reputation users
-SELECT display_name, reputation
-FROM {{ ref('Silver_Layer_User') }}
-ORDER BY reputation DESC
-LIMIT 20;
+{% enddocs %}

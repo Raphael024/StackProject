@@ -1,10 +1,10 @@
-{% docs questions_latest %}
+{% docs Dimension_Users %}
 
-# questions_latest
+# Dimension_Users
 
 **Purpose**
 
-Returns **one latest record per `question_id`** from `stg_so_questions`, preferring the row with the most recent `last_activity_ts` and, as a tie-breaker, the most recent `creation_ts`. Ensures a canonical `question_url`.
+Returns **one latest record per `question_id`** from `Silver_Layer_Questions`, preferring the row with the most recent `last_activity_ts` and, as a tie-breaker, the most recent `creation_ts`. Ensures a canonical `question_url`.
 
 **Logic (summary)**
 
@@ -28,7 +28,7 @@ Returns **one latest record per `question_id`** from `stg_so_questions`, preferr
 
 **Upstream dependency**
 
-- `stg_so_questions` (staging model of Stack Overflow questions).
+- `Silver_Layer_Questions` (staging model of Stack Overflow questions).
 
 **Assumptions & notes**
 
@@ -37,12 +37,4 @@ Returns **one latest record per `question_id`** from `stg_so_questions`, preferr
 
 **Example usage**
 
-```sql
--- Count distinct questions
-select count(*) from {{ ref('questions_latest') }};
-
--- Join to bridges or facts
-select ql.question_id, ql.title, b.tag_id
-from {{ ref('questions_latest') }} ql
-left join {{ ref('bridge_questions_tag') }} b
-  on b.question_id = ql.question_id;
+{% enddocs %}

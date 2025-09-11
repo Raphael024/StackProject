@@ -1,6 +1,6 @@
-{% docs dim_date %}
+{% docs Dimension_Date %}
 
-# dim_date
+# Dimension_Date
 
 **Purpose**
 
@@ -33,21 +33,4 @@ Provides common date parts and flags for robust time-series modeling and reporti
 - If you need an ISO-aligned **week year** (e.g., for dates near year boundaries), add `EXTRACT(ISOYEAR FROM date)` to avoid grouping mismatches.  
 - The calendar starts at 2010-01-01; adjust the start date if historical reporting requires more coverage.
 
-**Example usage**
-
-```sql
--- Typical date join on surrogate key
-SELECT f.*, d.year, d.month, d.iso_week
-FROM {{ ref('some_fact') }} f
-JOIN {{ ref('dim_date') }} d
-  ON d.date_key = f.date_key;
-
--- Filter to business days (Mon–Fri)
-SELECT *
-FROM {{ ref('dim_date') }}
-WHERE dow BETWEEN 2 AND 6;
-
--- Year-to-date date set
-SELECT *
-FROM {{ ref('dim_date') }}
-WHERE date BETWEEN DATE(EXTRACT(YEAR FROM CURRENT_DATE()), 1, 1) AND CURRENT_DATE();
+{% enddocs %}

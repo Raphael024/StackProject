@@ -9,7 +9,7 @@ It preserves the full raw payload for traceability, adds typed keys and dates, n
 
 **Lineage**
 
-- **Source:** `{{ source('so_raw','v_answers') }}`
+- **Source:** {% raw %}{{ source('DBT_RAW','v_Tag') }}{% endraw %}
 
 **Key transformations**
 
@@ -39,16 +39,4 @@ It preserves the full raw payload for traceability, adds typed keys and dates, n
 - `comment_count` is constrained to be ≥ 0.  
 - If upstream emits malformed dates, `SAFE_CAST` yields `NULL` (surfaces data quality issues without failing the load).
 
-**Example usage**
-
-```sql
--- Recently edited accepted answers
-SELECT answer_id, question_id, last_edit_dt, score
-FROM {{ ref('Silver_Layer_Answer') }}
-WHERE is_accepted = TRUE
-  AND last_edit_dt >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY);
-
--- Answers with missing author display names (for cleanup)
-SELECT answer_id, answerer_user_id
-FROM {{ ref('Silver_Layer_Answer') }}
-WHERE answerer_display_name IS NULL;
+{% enddocs %}

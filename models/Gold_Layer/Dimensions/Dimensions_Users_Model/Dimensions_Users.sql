@@ -1,28 +1,37 @@
-{{ config(materialized='table') }}
+{{ config(materialized="view") }}
 
-WITH base AS (
-  SELECT
-    q.question_id,
-    q.title,
-    COALESCE(q.question_url,
-             CONCAT('https://stackoverflow.com/questions/', CAST(q.question_id AS STRING))) AS question_url,
-    q.creation_ts,
-    q.last_activity_ts
-  FROM {{ ref('Silver_Layer_Questions') }} q
-  WHERE q.question_id IS NOT NULL
-),
-ranked AS (
-  SELECT
-    b.*,
-    ROW_NUMBER() OVER (
-      PARTITION BY question_id
-      ORDER BY last_activity_ts DESC NULLS LAST, creation_ts DESC NULLS LAST
-    ) AS rn
-  FROM base b
-)
-SELECT
-  question_id,
-  title,
-  question_url
-FROM ranked
-WHERE rn = 1
+with
+    base as (
+        select
+            u.user_id,
+            u.display_name,
+            u.reputation,
+            u.location,
+            u.country_guess,
+            u.join_dt,
+            u.last_access_dt
+        from {{ ref("Silver_Layer_Users") }} u
+        where u.user_id is not null
+    ),
+    ranked as (
+        select
+            b.*,
+            row_number() over (
+                partition by user_id
+                order by last_access_dt desc nulls last, join_dt desc nulls last
+            ) as rn
+        from base b
+    )
+select
+    user_id,
+    display_name,
+    reputation,
+    location,
+    country_guess,
+    join_dt,
+    last_access_dt,
+    cast(null as string) as website_url_norm,
+    date_diff(current_date(), join_dt, day) as tenure_days,
+    (date_diff(current_date(), last_access_dt, day) <= 90) as is_active_90d
+from ranked
+where rn = 1

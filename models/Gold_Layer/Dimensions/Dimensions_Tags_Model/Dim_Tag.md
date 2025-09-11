@@ -1,4 +1,4 @@
-{% docs dim_tags %}
+{% docs Dimension_Tags %}
 
 # dim_tags
 
@@ -8,7 +8,7 @@ A canonical **dimension of Stack Overflow tags**, produced by normalising tag st
 
 **Lineage**
 
-- **From questions:** `stg_so_questions`  
+- **From questions:** `Silver_Layer_Questions`  
   - Explodes `tags_array`, normalises with `LOWER(TRIM(...))`, and **de-duplicates**.
 - **From tag catalog:** `stg_so_tags`  
   - Brings `tag_count_raw`, `excerpt_post_id`, and `wiki_post_id` (when available).
@@ -47,25 +47,6 @@ A canonical **dimension of Stack Overflow tags**, produced by normalising tag st
 - `tag_count_raw` origin and semantics depend on the upstream catalog; treat it as **indicative**, not authoritative.  
 - The regex is a **strict** allowlist; adjust if your business rules permit additional characters.
 
-**Example usage**
 
-```sql
--- Join facts by tag_id after mapping tags to IDs via dim_tags
-WITH tags AS (
-  SELECT question_id, LOWER(TRIM(tag)) AS tag
-  FROM {{ ref('stg_so_questions') }}, UNNEST(tags_array) AS tag
-)
-SELECT
-  t.question_id,
-  dt.tag_id,
-  dt.tag,
-  dt.tag_count_raw
-FROM tags t
-JOIN {{ ref('dim_tags') }} dt
-  ON dt.tag = t.tag;
 
--- Find tags that likely need cleanup
-SELECT tag, has_illegal_chars
-FROM {{ ref('dim_tags') }}
-WHERE has_illegal_chars = TRUE
-ORDER BY tag;
+{% enddocs %}

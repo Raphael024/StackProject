@@ -1,6 +1,6 @@
-{% docs facts_answers_vw %}
+{% docs Answers %}
 
-# facts_answers_vw
+# Answers
 
 **Purpose**
 
@@ -9,9 +9,9 @@ Provides cleaned, canonicalized columns with foreign key references to questions
 
 **Lineage**
 
-- **Answers source**: `stg_so_answers` → basic answer fields.  
-- **Questions source**: `stg_so_questions` → acceptance link.  
-- **Calendar dimension**: `dim_date` → surrogate keys for creation and last activity dates.
+- **Answers source**: `Silver_Layer_Answer` → basic answer fields.  
+- **Questions source**: `Silver_Layer_Questions` → acceptance link.  
+- **Calendar dimension**: `Dimension_Date` → surrogate keys for creation and last activity dates.
 
 **Grain**
 
@@ -34,7 +34,7 @@ Provides cleaned, canonicalized columns with foreign key references to questions
 **Business logic summary**
 
 - Answers with `NULL` IDs are excluded.  
-- Accepted flag is computed by checking whether `answer_id = accepted_answer_id` from `stg_so_questions`.  
+- Accepted flag is computed by checking whether `answer_id = accepted_answer_id` from `Silver_Layer_Questions`.  
 - Calendar joins add surrogate keys and month-level bucketing.  
 - View materialization ensures flexibility for downstream aggregates.
 
@@ -46,25 +46,4 @@ Provides a **ready-to-use fact table** for reporting on answers:
 - Score and engagement trends.  
 - Joins to questions and tags via `question_id`.
 
-**Example usage**
-
-```sql
--- Find acceptance rate of answers
-SELECT
-  COUNTIF(is_accepted) / COUNT(*) AS acceptance_rate
-FROM {{ ref('facts_answers_vw') }};
-
--- Average score of accepted vs non-accepted answers
-SELECT
-  is_accepted,
-  AVG(score) AS avg_score
-FROM {{ ref('facts_answers_vw') }}
-GROUP BY is_accepted;
-
--- Answers per month
-SELECT
-  creation_month,
-  COUNT(*) AS answers
-FROM {{ ref('facts_answers_vw') }}
-GROUP BY creation_month
-ORDER BY creation_month;
+{% enddocs %}

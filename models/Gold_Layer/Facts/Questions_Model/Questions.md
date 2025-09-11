@@ -1,6 +1,6 @@
-{% docs facts_questions_vw %}
+{% docs Facts_Questions %}
 
-# facts_questions_vw
+# Facts_Questions
 
 **Purpose**
 
@@ -45,28 +45,4 @@ It standardizes canonical columns, adds calendar joins, and pre-aggregates the n
 - Provides a **single, consistent** source for question-level metrics used by dashboards and semantic layers.  
 - Simplifies time-series analysis with ready-made month buckets and date keys.
 
-**Example usage**
-
-```sql
--- Adoption metric: share of questions that have an accepted answer
-SELECT
-  COUNTIF(has_accepted_answer) / COUNT(*) AS accepted_ratio
-FROM {{ ref('facts_questions_vw') }};
-
--- Volume and engagement over time
-SELECT
-  creation_month,
-  COUNT(*) AS questions,
-  AVG(view_count) AS avg_views,
-  AVG(score) AS avg_score
-FROM {{ ref('facts_questions_vw') }}
-GROUP BY creation_month
-ORDER BY creation_month;
-
--- Correlate answer supply with acceptance
-SELECT
-  answer_count,
-  AVG(CASE WHEN has_accepted_answer THEN 1 ELSE 0 END) AS acceptance_rate
-FROM {{ ref('facts_questions_vw') }}
-GROUP BY answer_count
-ORDER BY answer_count;
+{% enddocs %}

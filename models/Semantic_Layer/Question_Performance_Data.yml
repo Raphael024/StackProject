@@ -16,11 +16,11 @@ models:
           - not_null
           - unique
           - relationships:
-              to: ref('facts_questions_vw')
+              to: ref('Facts_Questions')
               field: question_id
 
       - name: title
-        description: "Title of the question (from dim_questions)."
+        description: "Title of the question (from Dimensions_Questions)."
 
       - name: question_url
         description: "Canonical URL of the question."
@@ -29,7 +29,7 @@ models:
         description: "User ID of the asker."
         tests:
           - relationships:
-              to: ref('dim_users')
+              to: ref('Dimensions_Questions')
               field: user_id
 
       - name: asker_name

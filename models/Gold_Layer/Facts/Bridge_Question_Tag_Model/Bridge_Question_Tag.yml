@@ -15,11 +15,11 @@ models:
 
     columns:
       - name: question_id
-        description: "Question identifier from `stg_so_questions`."
+        description: "Question identifier from `Silver_Layer_Questions`."
         tests:
           - not_null
           - relationships:
-              to: ref('stg_so_questions')
+              to: ref('Silver_Layer_Questions')
               field: question_id
 
       - name: tag_id
@@ -27,5 +27,5 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_tags')
+              to: ref('Dimensions_Tags')
               field: tag_id

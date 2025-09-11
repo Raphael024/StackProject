@@ -1,6 +1,6 @@
-{% docs bridge_questions_tag_vw %}
+{% docs Bridge_Questions_Tag %}
 
-# bridge_questions_tag_vw
+# Bridge_Questions_Tag
 
 **Purpose**
 
@@ -22,8 +22,8 @@ Each row represents one `(question_id, tag_id)` pair, enabling joins from questi
 
 **Columns**
 
-- `question_id` — Question identifier (FK to `stg_so_questions`).  
-- `tag_id` — Surrogate key of the normalized tag (FK to `dim_tags`).
+- `question_id` — Question identifier (FK to `Silver_Layer_Questions`).  
+- `tag_id` — Surrogate key of the normalized tag (FK to `Dimension_Tags`).
 
 **Business logic summary**
 
@@ -39,22 +39,7 @@ Each row represents one `(question_id, tag_id)` pair, enabling joins from questi
 
 **Notes & caveats**
 
-- Only tags present in `dim_tags` will appear; ensure `dim_tags` is built from the same normalization logic to avoid mismatches.  
-- If you need raw tag text for display, join back to `dim_tags` on `tag_id`.
+- Only tags present in `dim_tags` will appear; ensure `Dimension_Tags` is built from the same normalization logic to avoid mismatches.  
+- If you need raw tag text for display, join back to `Dimension_Tags` on `tag_id`.
 
-**Example usage**
-
-```sql
--- Questions per tag (top 20)
-SELECT dt.tag, COUNT(*) AS questions
-FROM {{ ref('bridge_questions_tag_vw') }} b
-JOIN {{ ref('dim_tags') }} dt USING (tag_id)
-GROUP BY dt.tag
-ORDER BY questions DESC
-LIMIT 20;
-
--- Join questions to their tags for further enrichment
-SELECT q.question_id, q.title, dt.tag
-FROM {{ ref('questions_latest') }} q
-JOIN {{ ref('bridge_questions_tag_vw') }} b USING (question_id)
-JOIN {{ ref('dim_tags') }} dt USING (tag_id);
+{% enddocs %}
