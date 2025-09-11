@@ -9,7 +9,7 @@ It preserves the full raw payload, normalises the tag key, and casts attributes 
 
 **Lineage**
 
-- **Source:** `{{ source('so_raw','v_tags') }}`
+- **Source:** {% raw %}{{ source('DBT_RAW','v_Tag') }}{% endraw %}
 
 **Key transformations**
 
@@ -37,17 +37,4 @@ It preserves the full raw payload, normalises the tag key, and casts attributes 
 - `SAFE_CAST` yields `NULL` for malformed numbers, surfacing data quality issues without failing the run.
 - If you later hash to a surrogate key (e.g., `FARM_FINGERPRINT`), use this normalised `tag` as the input.
 
-**Example usage**
-
-```sql
--- Top tags by reported usage
-SELECT tag, tag_count_raw
-FROM {{ ref('Silver_Layer_Tags') }}
-ORDER BY tag_count_raw DESC
-LIMIT 20;
-
--- Join to a dimension that adds surrogate IDs and hygiene flags
-SELECT dt.tag_id, dt.tag, dt.is_zero_count
-FROM {{ ref('dim_tags') }} dt
-JOIN {{ ref('Silver_Layer_Tags') }} st
-  ON st.tag = dt.tag;
+{% enddocs %}

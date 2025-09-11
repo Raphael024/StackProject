@@ -19,7 +19,7 @@ models:
           - not_null
           - unique
           - relationships:
-              to: source('so_raw', 'v_tags')
+              to: source('DBT_RAW', 'v_tags')
               field: tag
 
       - name: tag_count_raw

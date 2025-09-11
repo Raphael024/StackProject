@@ -1,5 +1,4 @@
-name: 'StackProject'   # use the exact project name shown at top of dbt_project.yml
-version: '1.0'
+name: 'StackProject'  
 config-version: 2
 
 models:
@@ -9,24 +8,8 @@ models:
       +materialized: view
     Gold_Layer:
       +schema: Gold_layer
-      +materialized: table 
-      Facts:
-        +materialized: View
-    Gold_facts:   
-      +schema: Gold_Facts 
-      +materialized: View
+      +materialized: view
+    
     Semantic_Layer:   
       +schema: Semantic_Layer 
       +materialized: view  
-
-    
-
-  
-
-
-     
- 
-
-  
-
-

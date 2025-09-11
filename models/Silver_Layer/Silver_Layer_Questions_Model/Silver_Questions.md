@@ -9,7 +9,7 @@ This model preserves the raw payload for traceability, enforces type safety, nor
 
 **Lineage**
 
-- **Source:** `{{ source('so_raw','v_questions') }}`
+- **Source:** {% raw %}{{ source('DBT_RAW','v_questions') }}{% endraw %}
 
 **Key transformations**
 
@@ -53,17 +53,4 @@ This model preserves the raw payload for traceability, enforces type safety, nor
 - `tags_array` uses `LOWER(TRIM())`; synonyms/aliases not resolved here.  
 - `is_answered` logic provides a fallback even if raw `is_answered` is missing.
 
-**Example usage**
-
-```sql
--- Find unanswered questions created in the past 30 days
-SELECT question_id, title, creation_dt, view_count
-FROM {{ ref('Silver_Layer_Questions') }}
-WHERE is_answered = FALSE
-  AND creation_dt >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY);
-
--- Top questions by views
-SELECT question_id, title, view_count
-FROM {{ ref('Silver_Layer_Questions') }}
-ORDER BY view_count DESC
-LIMIT 20;
+{% enddocs %}

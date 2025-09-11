@@ -1,8 +1,8 @@
 version: 2
 sources:
-  - name: so_raw
-    database: master-shell-471213-v7
-    schema: so_raw
+  - name: DBT_RAW
+    database: assessment-project-471715
+    schema: DBT_RAW
     tables:
       - name: v_questions
       - name: v_answers

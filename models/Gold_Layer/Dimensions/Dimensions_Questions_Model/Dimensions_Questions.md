@@ -1,4 +1,4 @@
-{% docs unique_questions %}
+{% docs Dimension_questions %}
 
 #Dimension_questions#
 
@@ -31,7 +31,7 @@ It prefers rows with the most recent `last_activity_ts` and, as a tie-breaker, t
 
 **Upstream dependencies**
 
-- `stg_so_questions` (staging view/table containing raw Stack Overflow questions with timestamps).
+- `Silver_Layer_Questions` (staging view/table containing raw Stack Overflow questions with timestamps).
 
 **Why this exists**
 
@@ -43,20 +43,10 @@ Analytics and reporting often need a **single, most-up-to-date view** of each qu
 - Titles can change over time; this model surfaces the title from the latest row according to the ordering above.
 - URLs are normalized; when missing upstream, they are synthesized reliably from `question_id`.
 
-**Quality checks (see schema.yml)**
+**Quality checks **
 
 - `question_id` is `not_null` and `unique`.
 - `question_id` has a `relationships` test back to `stg_so_questions.question_id`.
 - `title` and `question_url` are `not_null`.
 
-**Example usage**
-
-```sql
--- Count of unique questions
-select count(*) from {{ ref('unique_questions') }};
-
--- Join to tags/answers facts by question_id
-select uq.question_id, uq.title, t.tags_csv
-from {{ ref('unique_questions') }} uq
-left join {{ ref('bridge_questions_tag') }} b on b.question_id = uq.question_id
-left join {{ ref('dim_tags') }} t on t.tag_id = b.tag_id;
+{% enddocs %}

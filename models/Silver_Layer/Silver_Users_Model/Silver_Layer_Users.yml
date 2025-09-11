@@ -19,7 +19,7 @@ models:
           - not_null
           - unique
           - relationships:
-              to: source('so_raw', 'v_users')
+              to: source('DBT_RAW','v_users')
               field: user_id
 
       - name: display_name
