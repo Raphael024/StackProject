@@ -1,55 +1,37 @@
 version: 2
 
 models:
-  - name: Dimensions_Tags
-    description: "{{ doc('Dimensions_Tags') }}"
+  - name: Bridge_Questions_Tag
+    description: "{{ doc('Bridge_Questions_Tag') }}"
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
       layer: gold
       maturity: medium
 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [question_id, tag_id]
+
     columns:
+      - name: question_id
+        description: "Question identifier from `Silver_Layer_Questions`."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('Silver_Layer_Questions')
+                field: question_id
+
       - name: tag_id
-        description: "Deterministic STRING surrogate key: to_hex(md5(lower(trim(tag))))."
+        description: "Deterministic INT64 surrogate key from `Dimensions_Tags` (ABS(FARM_FINGERPRINT(LOWER(TRIM(tag)))))."
         tests:
           - not_null
-          - unique
+          - relationships:
+              arguments:
+                to: ref('Dimensions_Tags')
+                field: tag_id
           - dbt_utils.expression_is_true:
-              # ensure 32-char lowercase hex
-              expression: "regexp_contains(tag_id, r'^[0-9a-f]{32}$')"
-
-      - name: tag
-        description: "Business key (BK): normalized tag in lowercase, trimmed; sourced from questions and joined to attributes."
-        tests:
-          - not_null
-          - unique
-
-      - name: tag_count_raw
-        description: "Raw usage count from Silver_Layer_Tags (defaults to 0 when missing)."
-        tests:
-          - not_null
-          - dbt_utils.expression_is_true:
-              expression: "tag_count_raw >= 0"
-
-      - name: excerpt_post_id
-        description: "Post ID for the tag’s short excerpt (nullable)."
-
-      - name: wiki_post_id
-        description: "Post ID for the tag’s wiki page (nullable)."
-
-      - name: has_illegal_chars
-        description: "TRUE if tag contains characters outside [a-z0-9-+.#]."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [TRUE, FALSE]
-              quote: false
-
-      - name: is_zero_count
-        description: "TRUE if tag_count_raw is 0 (or missing upstream)."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [TRUE, FALSE]
-              quote: false
+              arguments:
+                expression: "tag_id >= 0"
