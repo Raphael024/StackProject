@@ -25,6 +25,9 @@ models:
 
       - name: title
         description: "Title of the question, trimmed of blanks."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or length(title) > 0"
 
       - name: tags_raw
         description: "Raw tags string from source (pipe-delimited)."
@@ -70,20 +73,34 @@ models:
               values: [TRUE, FALSE]
               quote: false
 
+      # These numeric fields are already COALESCE'd to 0 in the model SQL,
+      # so column-scoped tests can be simple comparisons.
       - name: answer_count
-        description: "Number of answers (null-safe, coerced to INT64)."
+        description: "Number of answers (INT64, nulls coerced to 0 in model)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: comment_count
-        description: "Number of comments (null-safe, coerced to INT64)."
+        description: "Number of comments (INT64, nulls coerced to 0 in model)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: favorite_count
-        description: "Number of times the question was favorited (null-safe, coerced to INT64)."
+        description: "Number of times the question was favorited (INT64, nulls coerced to 0 in model)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: score
         description: "Net score (upvotes – downvotes)."
 
       - name: view_count
-        description: "Total views the question received (null-safe, coerced to INT64)."
+        description: "Total views the question received (INT64, nulls coerced to 0 in model)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: asker_user_id
         description: "User ID of the person who asked the question."
@@ -91,14 +108,3 @@ models:
       - name: asker_display_name
         description: "Trimmed display name of the asker (nullable when blank)."
 
-    tests:
-      - dbt_utils.expression_is_true:
-          expression: "coalesce(answer_count, 0) >= 0"
-      - dbt_utils.expression_is_true:
-          expression: "coalesce(comment_count, 0) >= 0"
-      - dbt_utils.expression_is_true:
-          expression: "coalesce(favorite_count, 0) >= 0"
-      - dbt_utils.expression_is_true:
-          expression: "coalesce(view_count, 0) >= 0"
-      - dbt_utils.expression_is_true:
-          expression: "title is null or length(title) > 0"
