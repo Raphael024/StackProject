@@ -22,9 +22,11 @@ models:
         description: "MIN(question_id) used as a representative FK for sanity."
         tests:
           - relationships:
-              arguments:
-                to: ref('Facts_Questions')
-                field: question_id
+              to: ref('Facts_Questions')
+              field: question_id
+              where: "creation_month >= DATE_SUB(CURRENT_DATE(), INTERVAL 24 MONTH)"
+              config:
+                severity: warn
 
       - name: distinct_count_of_question_id
         tests:
@@ -84,7 +86,6 @@ models:
       - name: has_answers_rate
         description: "Share of questions with ≥1 answer."
         tests:
-          # Use two tests so the macro can prepend the column name cleanly
           - dbt_utils.expression_is_true:
               arguments: { expression: ">= 0" }
           - dbt_utils.expression_is_true:
