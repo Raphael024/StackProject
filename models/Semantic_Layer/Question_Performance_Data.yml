@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: Question_Performance_Data
-    description: "Aggregated KPIs by creation month; representative question id for FK sanity."
+    description: "Aggregated KPIs by creation month for Stack Overflow questions."
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
@@ -11,13 +11,20 @@ models:
 
     columns:
       - name: creation_month
+        description: "DATE_TRUNC(creation_dt, MONTH)."
         tests: [not_null]
+
       - name: creation_year
+        description: "Calendar year extracted from creation_month."
+
       - name: creation_month_num
+        description: "Month number (1–12)."
+
       - name: creation_quarter
+        description: "Quarter (1–4)."
 
       - name: sample_question_id
-        description: "MIN(question_id) from the group."
+        description: "MIN(question_id) used as a representative FK for sanity."
         tests:
           - relationships:
               arguments:
@@ -25,20 +32,72 @@ models:
                 field: question_id
 
       - name: distinct_count_of_question_id
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "distinct_count_of_question_id >= 0" }
+
       - name: distinct_count_of_asker_user_id
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "distinct_count_of_asker_user_id >= 0" }
+
       - name: distinct_count_of_accepted_answer_id
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "distinct_count_of_accepted_answer_id >= 0" }
+
       - name: distinct_count_of_answerer_id
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "distinct_count_of_answerer_id >= 0" }
+
       - name: distinct_count_of_answerer_user_id
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "distinct_count_of_answerer_user_id >= 0" }
 
       - name: sum_of_answer_count
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "sum_of_answer_count >= 0" }
+
       - name: sum_of_view_count
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "sum_of_view_count >= 0" }
+
       - name: sum_of_favorite_count
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "sum_of_favorite_count >= 0" }
+
       - name: comment_count_summed
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "comment_count_summed >= 0" }
 
       - name: questions_with_answers
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "questions_with_answers >= 0" }
+
       - name: questions_with_accepted
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "questions_with_accepted >= 0" }
+
       - name: has_answers_rate
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "has_answers_rate >= 0 AND has_answers_rate <= 1" }
+
       - name: accepted_rate
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "accepted_rate >= 0 AND accepted_rate <= 1" }
 
       - name: tags_array
+        description: "Distinct tags across the month."
+
       - name: tags_csv
+        description: "Distinct tags across the month (pipe-delimited)."
