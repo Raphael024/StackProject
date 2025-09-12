@@ -12,11 +12,15 @@ models:
     columns:
       - name: tag_id
         description: "Deterministic INT64 id: ABS(FARM_FINGERPRINT(lower(trim(tag))))."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
 
       - name: tag
         description: "Normalized tag key (lowercase, trimmed)."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
 
       - name: tag_count_raw
         description: "Raw usage count from Silver_Layer_Tags (defaults to 0 when missing)."
@@ -24,7 +28,7 @@ models:
           - not_null
           - dbt_utils.expression_is_true:
               arguments:
-                expression: ">= 0"     # <-- only the predicate (no column name)
+                expression: ">= 0"   # only the predicate; macro injects the column name
 
       - name: excerpt_post_id
         description: "Post id for the tag excerpt (nullable)."
