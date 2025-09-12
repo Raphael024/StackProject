@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: Bridge_Questions_Tag
-    description: "Bridge between questions and tag dimension."
+    description: "{{ doc('Bridge_Questions_Tag') }}"
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
@@ -12,13 +12,11 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns:
-              - question_id
-              - tag_id
+            combination_of_columns: [question_id, tag_id]
 
     columns:
       - name: question_id
-        description: "FK to Silver_Layer_Questions.question_id."
+        description: "Question identifier from Silver_Layer_Questions."
         tests:
           - not_null
           - relationships:
@@ -27,7 +25,7 @@ models:
                 field: question_id
 
       - name: tag_id
-        description: "FK to Dimensions_Tags.tag_id (INT64)."
+        description: "INT64 surrogate key from Dimensions_Tags (ABS(FARM_FINGERPRINT(tag)))."
         tests:
           - not_null
           - relationships:

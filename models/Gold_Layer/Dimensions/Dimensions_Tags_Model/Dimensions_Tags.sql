@@ -17,7 +17,7 @@ WITH
   )
 
 SELECT
-  CAST(ABS(FARM_FINGERPRINT(tq.tag)) AS INT64) AS tag_id,   -- normalized tag id
+  CAST(ABS(FARM_FINGERPRINT(tq.tag)) AS INT64) AS tag_id,
   tq.tag,
   ta.tag_count_raw,
   ta.excerpt_post_id,

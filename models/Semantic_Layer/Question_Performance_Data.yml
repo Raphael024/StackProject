@@ -15,13 +15,8 @@ models:
         tests: [not_null]
 
       - name: creation_year
-        description: "Calendar year extracted from creation_month."
-
       - name: creation_month_num
-        description: "Month number (1–12)."
-
       - name: creation_quarter
-        description: "Quarter (1–4)."
 
       - name: sample_question_id
         description: "MIN(question_id) used as a representative FK for sanity."
@@ -46,14 +41,12 @@ models:
           - dbt_utils.expression_is_true:
               arguments: { expression: "distinct_count_of_accepted_answer_id >= 0" }
 
-      - name: distinct_count_of_answer_id
-        description: "Distinct answers tied to questions created in the month."
+      - name: distinct_count_of_answerer_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_answer_id >= 0" }
+              arguments: { expression: "distinct_count_of_answerer_id >= 0" }
 
       - name: distinct_count_of_answerer_user_id
-        description: "Distinct users who answered questions created in the month."
         tests:
           - dbt_utils.expression_is_true:
               arguments: { expression: "distinct_count_of_answerer_user_id >= 0" }
@@ -99,7 +92,4 @@ models:
               arguments: { expression: "accepted_rate >= 0 AND accepted_rate <= 1" }
 
       - name: tags_array
-        description: "Distinct tags across the month."
-
       - name: tags_csv
-        description: "Distinct tags across the month (pipe-delimited)."
