@@ -1,8 +1,8 @@
 version: 2
 
 models:
-  - name: dim_tags
-    description: "{{ doc('dim_tags') }}"
+  - name: Dimensions_Tags
+    description: "{{ doc('Dimensions_Tags') }}"
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
@@ -11,40 +11,45 @@ models:
 
     columns:
       - name: tag_id
-        description: "Deterministic INT64 ID for a tag: ABS(FARM_FINGERPRINT(lower(trim(tag)))). Stable across runs and environments."
+        description: "Deterministic STRING surrogate key: to_hex(md5(lower(trim(tag))))."
         tests:
           - not_null
           - unique
+          - dbt_utils.expression_is_true:
+              # ensure 32-char lowercase hex
+              expression: "regexp_contains(tag_id, r'^[0-9a-f]{32}$')"
 
       - name: tag
-        description: "Normalized tag key in lowercase with surrounding whitespace removed (sourced from questions, joined to tag attributes)."
+        description: "Business key (BK): normalized tag in lowercase, trimmed; sourced from questions and joined to attributes."
         tests:
           - not_null
           - unique
 
       - name: tag_count_raw
-        description: "Raw community-reported usage count for the tag from `stg_so_tags`; defaults to 0 when missing."
+        description: "Raw usage count from Silver_Layer_Tags (defaults to 0 when missing)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: "tag_count_raw >= 0"
 
       - name: excerpt_post_id
-        description: "Post ID of the tag’s short excerpt (if any) from `stg_so_tags`."
+        description: "Post ID for the tag’s short excerpt (nullable)."
 
       - name: wiki_post_id
-        description: "Post ID of the tag’s wiki page (if any) from `stg_so_tags`."
+        description: "Post ID for the tag’s wiki page (nullable)."
 
       - name: has_illegal_chars
-        description: "TRUE if the tag contains characters outside the allowed set `[a-z0-9-+.#]`."
+        description: "TRUE if tag contains characters outside [a-z0-9-+.#]."
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: [TRUE, FALSE]
+              quote: false
 
       - name: is_zero_count
-        description: "TRUE if `tag_count_raw` is 0 or NULL upstream."
+        description: "TRUE if tag_count_raw is 0 (or missing upstream)."
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: [TRUE, FALSE]
+              quote: false

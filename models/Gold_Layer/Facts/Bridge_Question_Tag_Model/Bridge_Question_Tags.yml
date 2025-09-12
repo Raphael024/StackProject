@@ -12,7 +12,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: ['question_id', 'tag_id']
+            combination_of_columns:
+              - question_id
+              - tag_id
 
     columns:
       - name: question_id
@@ -25,10 +27,12 @@ models:
                 field: question_id
 
       - name: tag_id
-        description: "Deterministic surrogate key for the normalized tag from `Dimensions_Tags`."
+        description: "Deterministic STRING surrogate key from `Dimensions_Tags` (to_hex(md5(lower(trim(tag)))))."
         tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('Dimensions_Tags')
                 field: tag_id
+          - dbt_utils.expression_is_true:
+              expression: "regexp_contains(tag_id, r'^[0-9a-f]{32}$')"
