@@ -1,4 +1,4 @@
-{{ config(materialized="view", alias="major_report") }}
+{{ config(schema= "Semantic_Layer",materialized="view", alias="Question_Performance_Data") }}
 
 with
     q as (

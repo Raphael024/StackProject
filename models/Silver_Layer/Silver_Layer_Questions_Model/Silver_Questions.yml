@@ -70,7 +70,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: [TRUE, FALSE]  
+              quote: false            
 
       - name: answer_count
         description: "Number of answers (SAFE_CAST from raw)."
