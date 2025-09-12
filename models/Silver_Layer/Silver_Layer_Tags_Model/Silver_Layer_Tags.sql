@@ -1,27 +1,25 @@
 {{ config(materialized="view") }}
-
-WITH base AS (
-  SELECT *
-  FROM {{ source("DBT_RAW", "v_tags") }}
-  WHERE tag IS NOT NULL
-),
-clean AS (
-  SELECT
-    (SELECT AS STRUCT b.*)                            AS raw_record,
-    LOWER(TRIM(b.tag))                                AS tag,
-    COALESCE(SAFE_CAST(b.tag_count AS INT64), 0)      AS tag_count_raw,
-    SAFE_CAST(b.excerpt_post_id AS INT64)             AS excerpt_post_id,
-    SAFE_CAST(b.wiki_post_id    AS INT64)             AS wiki_post_id
-  FROM base b
-  WHERE TRIM(b.tag) IS NOT NULL AND TRIM(b.tag) <> ''
-),
-dedup AS (
-  SELECT *
-  FROM clean
-  QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY tag
-    ORDER BY tag_count_raw DESC, excerpt_post_id DESC, wiki_post_id DESC
-  ) = 1
-)
-SELECT *
-FROM dedup
+with
+    base as (select * from {{ source("DBT_RAW", "v_tags") }} where tag is not null),
+    clean as (
+        select
+            (select as struct b.*) as raw_record,
+            lower(trim(b.tag)) as tag,
+            coalesce(safe_cast(b.tag_count as int64), 0) as tag_count_raw,
+            safe_cast(b.excerpt_post_id as int64) as excerpt_post_id,
+            safe_cast(b.wiki_post_id as int64) as wiki_post_id
+        from base b
+        where trim(b.tag) is not null and trim(b.tag) <> ''
+    ),
+    dedup as (
+        select *
+        from clean
+        qualify
+            row_number() over (
+                partition by tag
+                order by tag_count_raw desc, excerpt_post_id desc, wiki_post_id desc
+            )
+            = 1
+    )
+select *
+from dedup
