@@ -5,7 +5,6 @@ WITH base AS (
   FROM {{ source("DBT_RAW", "v_tags") }}
   WHERE tag IS NOT NULL
 ),
-
 clean AS (
   SELECT
     (SELECT AS STRUCT b.*)                            AS raw_record,
@@ -16,7 +15,6 @@ clean AS (
   FROM base b
   WHERE TRIM(b.tag) IS NOT NULL AND TRIM(b.tag) <> ''
 ),
-
 dedup AS (
   SELECT *
   FROM clean
@@ -25,6 +23,5 @@ dedup AS (
     ORDER BY tag_count_raw DESC, excerpt_post_id DESC, wiki_post_id DESC
   ) = 1
 )
-
 SELECT *
-FROM dedup;
+FROM dedup
