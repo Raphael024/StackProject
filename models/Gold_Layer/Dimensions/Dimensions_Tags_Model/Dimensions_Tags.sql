@@ -17,7 +17,7 @@ with
   )
 
 select
-  cast(abs(farm_fingerprint(tq.tag)) as int64) as tag_id,   -- <-- align name
+  cast(abs(farm_fingerprint(tq.tag)) as int64) as tag_id,
   tq.tag,
   ta.tag_count_raw,
   ta.excerpt_post_id,
@@ -25,4 +25,4 @@ select
   regexp_contains(tq.tag, r'[^a-z0-9\-\+\#\.]') as has_illegal_chars,
   ifnull(ta.tag_count_raw, 0) = 0 as is_zero_count
 from tags_from_questions tq
-left join tags_attrs ta using (tag);
+left join tags_attrs ta using (tag)
