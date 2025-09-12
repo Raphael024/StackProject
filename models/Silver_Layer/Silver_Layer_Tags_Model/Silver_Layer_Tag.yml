@@ -18,20 +18,19 @@ models:
         tests:
           - not_null
           - unique
-          - dbt_utils.expression_is_true:
-              expression: "length(tag) > 0"
-          # use 'arguments' to avoid deprecation warnings on newer dbt
           - relationships:
               arguments:
                 to: source('DBT_RAW', 'v_tags')
                 field: tag
+          - dbt_utils.expression_is_true:
+              expression: "!= ''"     # column-scoped; no column name here
 
       - name: tag_count_raw
-        description: "Raw community-reported usage count (INT64)."
+        description: "Raw community-reported usage count (INT64, nulls coerced to 0 in model)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "coalesce(tag_count_raw, 0) >= 0"
+              expression: ">= 0"      # column-scoped; no COALESCE here
 
       - name: excerpt_post_id
         description: "Post ID for the tag's short excerpt (nullable)."
