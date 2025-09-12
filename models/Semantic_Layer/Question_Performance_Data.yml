@@ -29,67 +29,77 @@ models:
       - name: distinct_count_of_question_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_question_id >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: distinct_count_of_asker_user_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_asker_user_id >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: distinct_count_of_accepted_answer_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_accepted_answer_id >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: distinct_count_of_answerer_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_answerer_id >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: distinct_count_of_answerer_user_id
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_answerer_user_id >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: sum_of_answer_count
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "sum_of_answer_count >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: sum_of_view_count
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "sum_of_view_count >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: sum_of_favorite_count
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "sum_of_favorite_count >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: comment_count_summed
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "comment_count_summed >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: questions_with_answers
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "questions_with_answers >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: questions_with_accepted
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "questions_with_accepted >= 0" }
+              arguments: { expression: ">= 0" }
 
       - name: has_answers_rate
+        description: "Share of questions with ≥1 answer."
         tests:
+          # Use two tests so the macro can prepend the column name cleanly
           - dbt_utils.expression_is_true:
-              arguments: { expression: "has_answers_rate >= 0 AND has_answers_rate <= 1" }
+              arguments: { expression: ">= 0" }
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "<= 1" }
 
       - name: accepted_rate
+        description: "Share of questions with an accepted answer."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "accepted_rate >= 0 AND accepted_rate <= 1" }
+              arguments: { expression: ">= 0" }
+          - dbt_utils.expression_is_true:
+              arguments: { expression: "<= 1" }
 
       - name: tags_array
+        description: "Distinct tags across the month."
+
       - name: tags_csv
+        description: "Distinct tags across the month (pipe-delimited)."
