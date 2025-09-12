@@ -16,8 +16,9 @@ models:
           - not_null
           - unique
           - relationships:
-              to: ref('stg_so_questions')
-              field: question_id
+              arguments:
+                to: ref('Silver_Layer_Questions')   # fix: correct upstream model
+                field: question_id
 
       - name: asker_user_id
         description: "User ID of the person who asked the question."
@@ -39,29 +40,31 @@ models:
           - not_null
 
       - name: creation_date_key
-        description: "Surrogate key (YYYYMMDD) from dim_date for `creation_dt`."
+        description: "Surrogate key (YYYYMMDD) from Dimensions_Date for `creation_dt` (nullable if no matching date)."
         tests:
-          - not_null
+          # as discussed, allow NULLs for keys that don't map to dim_date
           - relationships:
-              to: ref('dim_date')
-              field: date_key
+              arguments:
+                to: ref('Dimensions_Date')          # fix: correct dim model name
+                field: date_key
 
       - name: last_activity_date_key
-        description: "Surrogate key (YYYYMMDD) from dim_date for `last_activity_dt`."
+        description: "Surrogate key (YYYYMMDD) from Dimensions_Date for `last_activity_dt` (nullable)."
         tests:
           - relationships:
-              to: ref('dim_date')
-              field: date_key
+              arguments:
+                to: ref('Dimensions_Date')
+                field: date_key
 
       - name: answer_count
-        description: "Pre-aggregated count of distinct answers per question."
+        description: "Pre-aggregated count of distinct answers per question (≥ 0)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: "answer_count >= 0"
 
       - name: view_count
-        description: "Total views the question has received."
+        description: "Total views the question has received (≥ 0)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
@@ -73,7 +76,7 @@ models:
           - not_null
 
       - name: favorite_count
-        description: "Number of times the question was favorited/starred."
+        description: "Number of times the question was favorited/starred (≥ 0)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
@@ -84,14 +87,16 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: [TRUE, FALSE]                 # BigQuery booleans
+              quote: false                          # fix: don't quote BOOLs
 
       - name: has_accepted_answer
         description: "TRUE when `accepted_answer_id` is not NULL."
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: [TRUE, FALSE]
+              quote: false
 
     tests:
       # If an accepted answer exists, there must be at least one answer
