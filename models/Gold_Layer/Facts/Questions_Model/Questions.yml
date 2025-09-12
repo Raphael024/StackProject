@@ -17,7 +17,7 @@ models:
           - unique
           - relationships:
               arguments:
-                to: ref('Silver_Layer_Questions')   # fix: correct upstream model
+                to: ref('Silver_Layer_Questions')
                 field: question_id
 
       - name: asker_user_id
@@ -42,10 +42,9 @@ models:
       - name: creation_date_key
         description: "Surrogate key (YYYYMMDD) from Dimensions_Date for `creation_dt` (nullable if no matching date)."
         tests:
-          # as discussed, allow NULLs for keys that don't map to dim_date
           - relationships:
               arguments:
-                to: ref('Dimensions_Date')          # fix: correct dim model name
+                to: ref('Dimensions_Date')
                 field: date_key
 
       - name: last_activity_date_key
@@ -61,14 +60,14 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "answer_count >= 0"
+              expression: ">= 0"   
 
       - name: view_count
         description: "Total views the question has received (≥ 0)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "view_count >= 0"
+              expression: ">= 0"   
 
       - name: score
         description: "Net score of the question (upvotes - downvotes)."
@@ -80,15 +79,15 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "favorite_count >= 0"
+              expression: ">= 0"   
 
       - name: has_answers
         description: "TRUE when `answer_count` > 0."
         tests:
           - not_null
           - accepted_values:
-              values: [TRUE, FALSE]                 # BigQuery booleans
-              quote: false                          # fix: don't quote BOOLs
+              values: [TRUE, FALSE]
+              quote: false
 
       - name: has_accepted_answer
         description: "TRUE when `accepted_answer_id` is not NULL."
@@ -99,6 +98,5 @@ models:
               quote: false
 
     tests:
-      # If an accepted answer exists, there must be at least one answer
       - dbt_utils.expression_is_true:
           expression: "NOT has_accepted_answer OR answer_count > 0"
