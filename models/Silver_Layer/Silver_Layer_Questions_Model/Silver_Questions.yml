@@ -20,14 +20,11 @@ models:
           - unique
           - relationships:
               arguments:
-                to: source('DBT_RAW', 'v_questions')   # align with model source
+                to: source('DBT_RAW', 'v_questions')
                 field: question_id
 
       - name: title
         description: "Title of the question, trimmed of blanks."
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "title is null or length(title) > 0"  # allows null but disallows empty
 
       - name: tags_raw
         description: "Raw tags string from source (pipe-delimited)."
@@ -70,38 +67,38 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [TRUE, FALSE]  
-              quote: false            
+              values: [TRUE, FALSE]
+              quote: false
 
       - name: answer_count
-        description: "Number of answers (SAFE_CAST from raw)."
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "coalesce(answer_count, 0) >= 0"
+        description: "Number of answers (null-safe, coerced to INT64)."
 
       - name: comment_count
-        description: "Number of comments (SAFE_CAST from raw)."
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "coalesce(comment_count, 0) >= 0"
+        description: "Number of comments (null-safe, coerced to INT64)."
 
       - name: favorite_count
-        description: "Number of times the question was favorited."
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "coalesce(favorite_count, 0) >= 0"
+        description: "Number of times the question was favorited (null-safe, coerced to INT64)."
 
       - name: score
         description: "Net score (upvotes – downvotes)."
 
       - name: view_count
-        description: "Total views the question received."
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "coalesce(view_count, 0) >= 0"
+        description: "Total views the question received (null-safe, coerced to INT64)."
 
       - name: asker_user_id
         description: "User ID of the person who asked the question."
 
       - name: asker_display_name
         description: "Trimmed display name of the asker (nullable when blank)."
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "coalesce(answer_count, 0) >= 0"
+      - dbt_utils.expression_is_true:
+          expression: "coalesce(comment_count, 0) >= 0"
+      - dbt_utils.expression_is_true:
+          expression: "coalesce(favorite_count, 0) >= 0"
+      - dbt_utils.expression_is_true:
+          expression: "coalesce(view_count, 0) >= 0"
+      - dbt_utils.expression_is_true:
+          expression: "title is null or length(title) > 0"
