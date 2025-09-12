@@ -2,6 +2,7 @@
 
 WITH q AS (
   SELECT
+    fq.question_id,
     fq.creation_dt,
     dq.title              AS question_title,
     du.country_guess      AS asker_country,
@@ -17,6 +18,15 @@ WITH q AS (
   LEFT JOIN {{ ref('Dimensions_Users') }} du
     ON du.user_id = fq.asker_user_id
   WHERE fq.question_id IS NOT NULL
+),
+
+tags_by_q AS (
+  SELECT
+    b.question_id,
+    dt.tag
+  FROM {{ ref('Bridge_Questions_Tag') }} b
+  JOIN {{ ref('Dimensions_Tags') }} dt
+    ON dt.tag_id = b.tag_id
 )
 
 SELECT
@@ -25,14 +35,18 @@ SELECT
   q.asker_country,
   q.asker_reputation,
   q.last_activity_dt,
+  t.tag,
   SUM(q.answer_count)    AS sum_of_answer_count,
   SUM(q.view_count)      AS sum_of_view_count,
   SUM(q.favorite_count)  AS sum_of_favorite_count,
   SUM(q.comment_count)   AS comment_count_summed
 FROM q
+JOIN tags_by_q t
+  ON t.question_id = q.question_id
 GROUP BY
   q.creation_dt,
   q.question_title,
   q.asker_country,
   q.asker_reputation,
-  q.last_activity_dt
+  q.last_activity_dt,
+  t.tag

@@ -2,7 +2,7 @@
 
 WITH q AS (
   SELECT *
-  FROM {{ source("DBT_RAW", "v_questions") }}   -- keep in sync with YAML source name
+  FROM {{ source("DBT_RAW", "v_questions") }}   
   WHERE question_id IS NOT NULL
 )
 
@@ -32,13 +32,13 @@ SELECT
 
   SAFE_CAST(q.accepted_answer_id AS INT64)                AS accepted_answer_id,
 
-  /* always boolean, never null */
+ 
   COALESCE(
     CAST(q.is_answered AS BOOL),
     (q.accepted_answer_id IS NOT NULL) OR (COALESCE(SAFE_CAST(q.answer_count AS INT64), 0) > 0)
   )                                                       AS is_answered,
 
-  /* null-safe numerics for tests like coalesce(col,0) >= 0 */
+
   COALESCE(SAFE_CAST(q.answer_count   AS INT64), 0)       AS answer_count,
   COALESCE(SAFE_CAST(q.comment_count  AS INT64), 0)       AS comment_count,
   COALESCE(SAFE_CAST(q.favorite_count AS INT64), 0)       AS favorite_count,
