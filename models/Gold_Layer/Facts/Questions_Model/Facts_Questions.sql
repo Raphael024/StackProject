@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}   -- let dbt_project.yaml put this in dbt_gold_layer
+{{ config(materialized="table") }} 
 
 WITH q AS (
   SELECT
