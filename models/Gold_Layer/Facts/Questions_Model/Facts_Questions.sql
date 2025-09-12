@@ -35,8 +35,8 @@ SELECT
   q.creation_dt,
   q.last_activity_dt,
   DATE_TRUNC(q.creation_dt, MONTH) AS creation_month,
-  COALESCE(cd.date_key, 0)  AS creation_date_key,
-  COALESCE(lad.date_key, 0) AS last_activity_date_key,
+  cd.date_key  AS creation_date_key,       
+  lad.date_key AS last_activity_date_key,  
   GREATEST(
     COALESCE(apq.answer_count_calc, 0),
     CASE WHEN q.accepted_answer_id IS NOT NULL THEN 1 ELSE 0 END
