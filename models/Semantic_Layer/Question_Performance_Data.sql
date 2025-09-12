@@ -35,4 +35,4 @@ GROUP BY
   q.question_title,
   q.asker_country,
   q.asker_reputation,
-  q.last_activity_dt;
+  q.last_activity_dt
