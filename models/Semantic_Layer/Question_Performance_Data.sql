@@ -13,7 +13,8 @@ with
             score,
             favorite_count,
             has_answers,
-            has_accepted_answer
+            has_accepted_answer,
+            comment_count
         from {{ ref("Facts_Questions") }}
     ),
 
@@ -53,7 +54,6 @@ with
         from {{ ref("Dimensions_Users") }}
     ),
 
-    
     tags as (
         select
             b.question_id,
@@ -102,6 +102,7 @@ select
     count(distinct q.accepted_answer_id) as distinct_count_of_accepted_answer_id,
     count(distinct aa.answer_id) as distinct_count_of_answerer_id,
     count(distinct aa.answerer_user_id) as distinct_count_of_answerer_user_id,
+    sum(q.comment_count) as comment_count_summed,
     au.accepted_user_name,
     au.accepted_user_reputation,
     t.tags_array,
@@ -114,4 +115,4 @@ left join accepted_user au on au.accepted_user_id = aa.answerer_user_id
 left join tags t on t.question_id = q.question_id
 left join cd on cd.date_key = q.creation_date_key
 left join lad on lad.date_key = q.last_activity_date_key
-group by 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 20, 21, 25, 26, 27, 28
+group by 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 20, 21, 26, 27, 28, 29

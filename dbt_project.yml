@@ -1,15 +1,17 @@
-name: 'StackProject'  
+name: 'StackProject'
 config-version: 2
 
 models:
   StackProject:
     Silver_Layer:
-      +schema: Silver_layer
+      +schema: silver_layer
       +materialized: view
+
     Gold_Layer:
-      +schema: Gold_layer
+      +schema: gold_layer
+      +materialized: table 
+
+    Semantic_Layer:
+      +schema: semantic_layer
       +materialized: view
-    
-    Semantic_Layer:   
-      +schema: Semantic_Layer 
-      +materialized: view  
+ 
