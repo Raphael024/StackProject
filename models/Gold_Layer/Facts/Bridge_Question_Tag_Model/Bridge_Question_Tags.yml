@@ -12,13 +12,11 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns:
-              - question_id
-              - tag_id
+            combination_of_columns: [question_id, tag_id]
 
     columns:
       - name: question_id
-        description: "Question identifier from `Silver_Layer_Questions`."
+        description: "FK to Silver_Layer_Questions."
         tests:
           - not_null
           - relationships:
@@ -27,7 +25,7 @@ models:
                 field: question_id
 
       - name: tag_id
-        description: "Deterministic STRING surrogate key from `Dimensions_Tags` (to_hex(md5(lower(trim(tag)))))."
+        description: "Deterministic INT64 surrogate key (from Dimensions_Tags.tag_id)."
         tests:
           - not_null
           - relationships:
@@ -35,4 +33,5 @@ models:
                 to: ref('Dimensions_Tags')
                 field: tag_id
           - dbt_utils.expression_is_true:
-              expression: "regexp_contains(tag_id, r'^[0-9a-f]{32}$')"
+              arguments:
+                expression: "tag_id >= 0"

@@ -1,37 +1,49 @@
 version: 2
 
 models:
-  - name: Bridge_Questions_Tag
-    description: "{{ doc('Bridge_Questions_Tag') }}"
+  - name: Dimensions_Tags
+    description: "Normalized tag dimension derived from Silver_Layer_Questions and Silver_Layer_Tags."
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
       layer: gold
       maturity: medium
 
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns: [question_id, tag_id]
-
     columns:
-      - name: question_id
-        description: "Question identifier from `Silver_Layer_Questions`."
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('Silver_Layer_Questions')
-                field: question_id
-
       - name: tag_id
-        description: "Deterministic INT64 surrogate key from `Dimensions_Tags` (ABS(FARM_FINGERPRINT(LOWER(TRIM(tag)))))."
+        description: "Deterministic INT64 ID: ABS(FARM_FINGERPRINT(LOWER(TRIM(tag))))."
+        tests: [not_null, unique]
+
+      - name: tag
+        description: "Lowercased, trimmed tag key."
+        tests: [not_null, unique]
+
+      - name: tag_count_raw
+        description: "Raw community-reported usage count (nullable upstream -> 0 here)."
         tests:
           - not_null
-          - relationships:
-              arguments:
-                to: ref('Dimensions_Tags')
-                field: tag_id
           - dbt_utils.expression_is_true:
               arguments:
-                expression: "tag_id >= 0"
+                expression: "tag_count_raw >= 0"
+
+      - name: excerpt_post_id
+        description: "Post ID for tag excerpt (nullable)."
+
+      - name: wiki_post_id
+        description: "Post ID for tag wiki (nullable)."
+
+      - name: has_illegal_chars
+        description: "TRUE if tag contains chars outside [a-z0-9-+.#]."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: is_zero_count
+        description: "TRUE if tag_count_raw is 0 (or missing upstream)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
