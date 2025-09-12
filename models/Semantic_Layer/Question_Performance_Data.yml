@@ -46,12 +46,14 @@ models:
           - dbt_utils.expression_is_true:
               arguments: { expression: "distinct_count_of_accepted_answer_id >= 0" }
 
-      - name: distinct_count_of_answerer_id
+      - name: distinct_count_of_answer_id
+        description: "Distinct answers tied to questions created in the month."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: "distinct_count_of_answerer_id >= 0" }
+              arguments: { expression: "distinct_count_of_answer_id >= 0" }
 
       - name: distinct_count_of_answerer_user_id
+        description: "Distinct users who answered questions created in the month."
         tests:
           - dbt_utils.expression_is_true:
               arguments: { expression: "distinct_count_of_answerer_user_id >= 0" }
