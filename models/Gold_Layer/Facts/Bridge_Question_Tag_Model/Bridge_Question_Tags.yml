@@ -11,7 +11,8 @@ models:
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [question_id, tag_id]
+          arguments:
+            combination_of_columns: ['question_id', 'tag_id']
 
     columns:
       - name: question_id
@@ -19,13 +20,15 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('Silver_Layer_Questions')
-              field: question_id
+              arguments:
+                to: ref('Silver_Layer_Questions')
+                field: question_id
 
       - name: tag_id
-        description: "Deterministic surrogate key for the normalized tag from `dim_tags`."
+        description: "Deterministic surrogate key for the normalized tag from `Dimensions_Tags`."
         tests:
           - not_null
           - relationships:
-              to: ref('Dimensions_Tags')
-              field: tag_id
+              arguments:
+                to: ref('Dimensions_Tags')
+                field: tag_id
