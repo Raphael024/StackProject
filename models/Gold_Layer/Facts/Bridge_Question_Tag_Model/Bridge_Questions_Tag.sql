@@ -1,13 +1,14 @@
 {{ config(materialized="view") }}
 
-with
-    pairs as (
-        select distinct q.question_id, lower(trim(tag)) as tag
-        from {{ ref("Silver_Layer_Questions") }} q
-        cross join unnest(coalesce(q.tags_array, array<string>[])) as tag
-        where tag != ''
-    )
-select p.question_id, d.tag_id
-from pairs p
-join {{ ref("Dimensions_Tags") }} d using (tag)
-;
+WITH pairs AS (
+  SELECT DISTINCT q.question_id, LOWER(TRIM(tag)) AS tag
+  FROM {{ ref("Silver_Layer_Questions") }} q
+  CROSS JOIN UNNEST(COALESCE(q.tags_array, ARRAY<STRING>[])) AS tag
+  WHERE tag <> ''
+)
+SELECT
+  p.question_id,
+  d.tag_id
+FROM pairs p
+JOIN {{ ref("Dimensions_Tags") }} d
+  USING (tag)

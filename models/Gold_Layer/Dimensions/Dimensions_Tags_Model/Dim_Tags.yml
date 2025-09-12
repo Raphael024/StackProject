@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: Dimensions_Tags
-    description: "Normalized tag dimension derived from Silver_Layer_Questions and Silver_Layer_Tags."
+    description: "Tag dimension built from Silver layer tags and question usage."
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
@@ -11,15 +11,15 @@ models:
 
     columns:
       - name: tag_id
-        description: "Deterministic INT64 ID: ABS(FARM_FINGERPRINT(LOWER(TRIM(tag))))."
+        description: "Deterministic INT64 id: ABS(FARM_FINGERPRINT(lower(trim(tag))))."
         tests: [not_null, unique]
 
       - name: tag
-        description: "Lowercased, trimmed tag key."
+        description: "Normalized tag key (lowercase, trimmed)."
         tests: [not_null, unique]
 
       - name: tag_count_raw
-        description: "Raw community-reported usage count (nullable upstream -> 0 here)."
+        description: "Raw usage count from Silver_Layer_Tags (defaults to 0 when missing)."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
@@ -27,23 +27,25 @@ models:
                 expression: "tag_count_raw >= 0"
 
       - name: excerpt_post_id
-        description: "Post ID for tag excerpt (nullable)."
+        description: "Post id for the tag excerpt (nullable)."
 
       - name: wiki_post_id
-        description: "Post ID for tag wiki (nullable)."
+        description: "Post id for the tag wiki (nullable)."
 
       - name: has_illegal_chars
-        description: "TRUE if tag contains chars outside [a-z0-9-+.#]."
+        description: "TRUE if tag contains characters outside [a-z0-9-+.#]."
         tests:
           - not_null
           - accepted_values:
               arguments:
-                values: [true, false]
+                values: [TRUE, FALSE]
+                quote: false
 
       - name: is_zero_count
-        description: "TRUE if tag_count_raw is 0 (or missing upstream)."
+        description: "TRUE when tag_count_raw is 0 or NULL upstream."
         tests:
           - not_null
           - accepted_values:
               arguments:
-                values: [true, false]
+                values: [TRUE, FALSE]
+                quote: false
