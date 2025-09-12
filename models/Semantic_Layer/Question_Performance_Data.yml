@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: Question_Performance_Data
-    description: "Aggregated KPIs by creation month for Stack Overflow questions."
+    description: "Per-creation-date aggregates with question/title & asker attributes."
     meta:
       owner: Christopher Lewis
       domain: stack_overflow
@@ -10,97 +10,50 @@ models:
       maturity: high
 
     columns:
-      - name: creation_month
-        description: "DATE_TRUNC(creation_dt, MONTH)."
+      - name: creation_dt
+        description: "DATE the question was created (from Dimensions_Date)."
         tests: [not_null]
 
-      - name: creation_year
-      - name: creation_month_num
-      - name: creation_quarter
+      - name: question_title
+        description: "Title of the question (from Dimensions_Questions)."
 
-      - name: sample_question_id
-        description: "MIN(question_id) used as a representative FK for sanity."
-        tests:
-          - relationships:
-              to: ref('Facts_Questions')
-              field: question_id
-              where: "creation_month >= DATE_SUB(CURRENT_DATE(), INTERVAL 24 MONTH)"
-              config:
-                severity: warn
+      - name: asker_country
+        description: "Country guess of the asker, if available."
 
-      - name: distinct_count_of_question_id
+      - name: asker_reputation
+        description: "Asker’s reputation (from Dimensions_Users)."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
+              arguments:
+                expression: ">= 0"
 
-      - name: distinct_count_of_asker_user_id
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: distinct_count_of_accepted_answer_id
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: distinct_count_of_answerer_id
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: distinct_count_of_answerer_user_id
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
+      - name: last_activity_dt
+        description: "DATE of last activity on the question (from Dimensions_Date)."
 
       - name: sum_of_answer_count
+        description: "Sum of answer_count grouped by creation_dt + attributes."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
+              arguments:
+                expression: ">= 0"
 
       - name: sum_of_view_count
+        description: "Sum of view_count grouped by creation_dt + attributes."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
+              arguments:
+                expression: ">= 0"
 
       - name: sum_of_favorite_count
+        description: "Sum of favorite_count grouped by creation_dt + attributes."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
+              arguments:
+                expression: ">= 0"
 
       - name: comment_count_summed
+        description: "Sum of comment_count grouped by creation_dt + attributes."
         tests:
           - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: questions_with_answers
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: questions_with_accepted
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-
-      - name: has_answers_rate
-        description: "Share of questions with ≥1 answer."
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-          - dbt_utils.expression_is_true:
-              arguments: { expression: "<= 1" }
-
-      - name: accepted_rate
-        description: "Share of questions with an accepted answer."
-        tests:
-          - dbt_utils.expression_is_true:
-              arguments: { expression: ">= 0" }
-          - dbt_utils.expression_is_true:
-              arguments: { expression: "<= 1" }
-
-      - name: tags_array
-        description: "Distinct tags across the month."
-
-      - name: tags_csv
-        description: "Distinct tags across the month (pipe-delimited)."
+              arguments:
+                expression: ">= 0"
